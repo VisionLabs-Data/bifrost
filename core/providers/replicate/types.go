@@ -30,6 +30,8 @@ func (req *ReplicatePredictionRequest) GetExtraParams() map[string]interface{} {
 	return req.ExtraParams
 }
 
+func (req *ReplicatePredictionRequest) GetParameterMappings() map[string]string { return nil }
+
 // ReplicatePredictionRequestInput represents the input parameters for a model prediction
 // This is flexible to support different model types - exact fields depend on the model
 type ReplicatePredictionRequestInput struct {

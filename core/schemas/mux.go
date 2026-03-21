@@ -1995,34 +1995,6 @@ func (cr *BifrostChatResponse) ToBifrostResponsesStreamResponse(state *ChatToRes
 			response.Output = allOutput
 		}
 
-		// Append finalized function call items so the terminal response carries them in Output.
-		for toolCallID, args := range state.ToolArgumentBuffers {
-			if args == "" {
-				continue
-			}
-			statusFinal := terminalStatus
-			messageType := ResponsesMessageTypeFunctionCall
-			callName := state.ToolCallNames[toolCallID]
-			var callNamePtr *string
-			if callName != "" {
-				callNamePtr = &callName
-			}
-			argsValue := args
-			fcMsg := ResponsesMessage{
-				Type:   &messageType,
-				Status: &statusFinal,
-				ResponsesToolMessage: &ResponsesToolMessage{
-					CallID:    &toolCallID,
-					Name:      callNamePtr,
-					Arguments: &argsValue,
-				},
-			}
-			if itemID := state.ItemIDs[toolCallID]; itemID != "" {
-				fcMsg.ID = &itemID
-			}
-			response.Output = append(response.Output, fcMsg)
-		}
-
 		responses = append(responses, &BifrostResponsesStreamResponse{
 			Type:           terminalEventType,
 			SequenceNumber: state.SequenceNumber,
@@ -2339,8 +2311,21 @@ func (cr *BifrostChatResponse) ToBifrostTextCompletionResponse() *BifrostTextCom
 	if choice.ChatNonStreamResponseChoice != nil {
 		msg := choice.ChatNonStreamResponseChoice.Message
 		var textContent *string
-		if msg != nil && msg.Content != nil && msg.Content.ContentStr != nil {
-			textContent = msg.Content.ContentStr
+		if msg != nil && msg.Content != nil {
+			if msg.Content.ContentStr != nil {
+				textContent = msg.Content.ContentStr
+			} else if len(msg.Content.ContentBlocks) > 0 {
+				var sb strings.Builder
+				for _, block := range msg.Content.ContentBlocks {
+					if block.Text != nil {
+						sb.WriteString(*block.Text)
+					}
+				}
+				if sb.Len() > 0 {
+					s := sb.String()
+					textContent = &s
+				}
+			}
 		}
 		return &BifrostTextCompletionResponse{
 			ID:                cr.ID,
