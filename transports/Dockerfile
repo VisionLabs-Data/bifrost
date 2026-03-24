@@ -87,10 +87,7 @@ ENV GOGC="" \
 
 
 RUN mkdir -p $APP_DIR/logs && \
-  adduser -D -s /bin/sh appuser && \
-  chown -R appuser:appuser /app && \
   chmod +x /app/docker-entrypoint.sh
-USER appuser
 
 
 # Data persistence: use Railway volumes mounted at /app/data
