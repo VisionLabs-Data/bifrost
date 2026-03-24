@@ -36,6 +36,11 @@ fix_permissions() {
 # Fix permissions before starting the application
 fix_permissions
 
+# Railway provides PORT; Bifrost expects APP_PORT
+if [ -n "$PORT" ] && [ -z "$APP_PORT" ]; then
+    export APP_PORT="$PORT"
+fi
+
 # Parse command line arguments and set environment variables
 parse_args() {
     while [ $# -gt 0 ]; do
