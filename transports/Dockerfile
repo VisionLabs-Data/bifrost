@@ -93,8 +93,7 @@ RUN mkdir -p $APP_DIR/logs && \
 USER appuser
 
 
-# Declare volume for data persistence
-VOLUME ["/app/data"]
+# Data persistence: use Railway volumes mounted at /app/data
 EXPOSE $APP_PORT
 
 # Health check for container status monitoring
